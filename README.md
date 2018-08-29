@@ -20,7 +20,7 @@ Validators validate data, not other elements, and may display a message and exec
 
 ### Demonstration Project
 
-<a href="https://github.com/jmussman/react-field-validator-demo.git">Field Validator Demo Project</a>
+<a href="https://github.com/jmussman/react-data-validator-demo.git">Field Validator Demo Project</a>
 
 ### Code Demo
 
@@ -45,8 +45,8 @@ $ npm i react-field-validator --save
 ```
 
 ```javascript
-import Validator from 'react-field-validator'
-import { Validator } from 'react-field-validator'
+import Validator from 'react-data-validator'
+import { Validator } from 'react-data-validator'
 ```
 
 |Prop|Description|
@@ -121,7 +121,6 @@ The state set in this method links back to the *Post* button in the previous exa
 ```javascript
 componentDidUpdate() {
 
-
     if (this.valid !== this.state.valid) {
 
         this.setState({ valid: this.valid })
@@ -142,4 +141,4 @@ We are always looking for ways to make the module better. But remember: Keep it 
 
 ### License
 
-This project is licensed under the MIT License
+This project is licensed under the MIT License.
