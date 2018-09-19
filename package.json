@@ -1,6 +1,6 @@
 {
     "name": "react-data-validator",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "description": "A React Component for validating any data, and works well alongside of input fields.",
     "license": "MIT",
     "homepage": "https://github.com/jmussman/react-data-validator",
@@ -10,7 +10,8 @@
         "Validator",
         "Validation",
         "Form",
-        "Field"
+        "Field",
+        "Credit Card"
     ],
     "contributors": [
         {
@@ -23,9 +24,11 @@
     },
     "main": "out/Validator.js",
     "scripts": {
-        "build": "webpack"
+        "build": "webpack",
+        "test": "npx jest"
     },
     "peerDependencies": {
+        "moment": "^2.22.2",
         "prop-types": "^15.6.2",
         "react": "^16.4.2",
         "react-dom": "^16.4.2"
@@ -35,12 +38,23 @@
         "@babel/preset-env": "^7.0.0",
         "@babel/preset-react": "^7.0.0",
         "@babel/preset-stage-0": "^7.0.0",
+        "babel-core": "^7.0.0-bridge.0",
         "babel-loader": "^8.0.0",
+        "enzyme": "^3.6.0",
+        "enzyme-adapter-react-16": "^1.5.0",
+        "jest": "^23.6.0",
+        "jest-fetch-mock": "^1.6.6",
         "path": "^0.12.7",
         "prop-types": "^15.6.2",
         "react": "^16.4.2",
         "react-dom": "^16.4.2",
+        "react-test-renderer": "^16.5.1",
         "webpack": "^4.17.1",
         "webpack-cli": "^3.1.0"
+    },
+    "jest": {
+        "setupFiles": [
+            "<rootDir>/src/test/common/jest_setup.js"
+        ]
     }
 }
