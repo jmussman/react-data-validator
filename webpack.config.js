@@ -2,7 +2,7 @@ var path = require('path');
  
 module.exports = {
     mode: 'production',
-    entry: path.join(path.resolve('src/main'), 'Validator.js'),
+    entry: path.join(path.resolve('src'), 'Validator.js'),
     output: {
         path: path.resolve('out'),
         filename: 'Validator.js',

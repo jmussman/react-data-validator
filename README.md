@@ -1,5 +1,3 @@
-[//]: # (README.md)
-[//]: # (Copyright © 2018 Joel Mussman. All rights reserved.)
 
 <p align="center"><img src="logo.png" /></p>
 
@@ -15,19 +13,10 @@ Validators validate data, not other elements, and may display a message and exec
 * As a React component, validation takes place whenever the component is rendered
 * May be used to render a message, and apply CSS
 * Validation constraints may be values, ranges, lists, regular expressions, and functions
-* The validator may force the value to exist and not be null or an empty string or array (isRequired)
+* The validator may force the value to exist and not be null (isRequired)
 * Failed validation may invoke a callback function
 * Validators may be placed anywhere: grouped at the top of a form, placed next to fields, etc.
 * More than one validator may check the same data
-
-The Validator is intentionally set up so that failure on a required value does not render a message by default.
-This is so the notify callback may be used to change the visual appearance of an input field (maybe putting a red
-box around it), but not show a message detailing a more complex constraint that may have been missed.
-Use renderOnEmpty to turn off this feature.
-
-Version 1.1 includes a full suite of unit and integration tests under Jest.
-Adding these was a good idea, they exposed several bugs.
-We should have started with TDD!
 
 ### Demonstration Project
 
@@ -63,11 +52,11 @@ import { Validator } from 'react-data-validator'
 |Prop|Description|
 |---|---|
 |className|A CSS class or classes to apply to the message. The message appears in a &lt;span&gt; tag with this class or classes.|
-|value:|The data to check. If an input field is validated, this should be the same prop or state value the field is bound to. This may be a boolean, a number, a string, or an object reference. *value* is required| 
+|value:|The data to check. If an input field is validated, this should be the same prop or state value the field is bound to.| 
 |isRequired|set to true if the value must exist. Zero is a legitimate value, null is not. The default value is false.|
-|renderOnEmpty|Render the error message if the field is empty and does not pass validation. This allows empty fields to be marked as required instead of ignored, but does not show a message. The default value is false.|
-|constraint|A single value, a list of values, an object with a range of numbers as { min: 0, max: 9 }, a regular expression, or a callback function. The function must return true or false. If the *constraint* is an object references are checked. *constraint* is required.|
-|notify|A callback function that will be executed only if the validation fails. The *notify* callback is executed asynchronously after the validation is performed, by scheduling through the event queue immediately using setTimeout. It is safe to call setState from the *notify* callback.|
+|renderOnEmpty|Render the error message if the field is empty and does not pass validation. This allows empty fields to be marked as required instead of ignored. The default value is false.|
+|constraint|A single value, a list of values, an object with a range of numbers as { min: 0, max: 9 }, a regular expression, or a callback function. The function must return true or false.|
+|notify|A callback function that will be executed only if the validation fails. Do not call setState from notify.|
 
 Validators do not validate other components, they validate a piece of data.
 That data may come from a prop or component state, most likely state.
@@ -111,6 +100,32 @@ Multiple Validators in a form next to input fields may look something like this 
     <input type="button" value="Post" disabled={ !this.state.valid } onClick={ this.alert } />&nbsp;
     <input type="submit" value="Submit" onClick={ this.alert } />
 </form>
+```
+
+The *notify* callback is executed synchronously while the validation is being performed, but validation is only performed when the Validator is rendered.
+For that reason, *setState* may not be used in the notify callback.
+Props are set for children when the parent is rendered, but before any children are rendered.
+Because the values are set, changing a variable using *notify* called from one Validator that is the source of a prop for subsequent component will not change the original value of the prop that component will receive.
+
+If sequential children depend on the validation state, then they have to be re-rendered after the validators have run.
+An example of using this would be to diable a button because validation failed.
+This can be handled by making the button dependent on a state value, but remember that *setState* cannot be called from within
+the *notify* callback because it is called from *render.*
+The solution is to have *notify* set a class instance variable to indicate the state of validation. Then update the component state later in the cycle using *componentDidMount* and *componentDidUpdate*.
+Both events are necessary, the first happens after the initial creation and mount, and the second on every update.
+Do this with care, because *setState* is simple and does not check to see if state has changed.
+Calling *setState* within these two methods when the state has not changed will cause an infinite recursion.
+Always check that the state actually changed before calling *setState.*
+The state set in this method links back to the *Post* button in the previous example:
+
+```javascript
+componentDidUpdate() {
+
+    if (this.valid !== this.state.valid) {
+
+        this.setState({ valid: this.valid })
+    }
+}
 ```
 
 How the parent component using Validator chooses to handle invalid data, or change the data before it is
