@@ -1,8 +1,9 @@
-var path = require('path');
- 
+const path = require('path')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
+
 module.exports = {
     mode: 'production',
-    entry: path.join(path.resolve('src'), 'Validator.js'),
+    entry: path.join(path.resolve('src/main'), 'Validator.js'),
     output: {
         path: path.resolve('out'),
         filename: 'Validator.js',
@@ -21,5 +22,8 @@ module.exports = {
                 }
             }
         ]
-    }
+    },
+    plugins: [
+        new CopyWebpackPlugin( [  { from: './src/main/Validator.d.ts', to: './Validator.d.ts' } ] )
+    ]
 }
