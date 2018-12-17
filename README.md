@@ -7,6 +7,8 @@ This module was built to handle form field validation within the React paradigm.
 The module provides a very simple Validator component that may be rendered as a child of any other component.
 Validators validate data, not other elements, and may display a message and execute a callback if validation fails.
 
+**Warning: How the notify function is used changed in version 2 of this module.**
+
 ### List of features
 
 * May be used to validate any data, regardless of the source
@@ -55,8 +57,9 @@ import { Validator } from 'react-data-validator'
 |value:|The data to check. If an input field is validated, this should be the same prop or state value the field is bound to.| 
 |isRequired|set to true if the value must exist. Zero is a legitimate value, null is not. The default value is false.|
 |renderOnEmpty|Render the error message if the field is empty and does not pass validation. This allows empty fields to be marked as required instead of ignored. The default value is false.|
-|constraint|A single value, a list of values, an object with a range of numbers as { min: 0, max: 9 }, a regular expression, or a callback function. The function must return true or false.|
-|notify|A callback function that will be executed only if the validation fails. Do not call setState from notify.|
+|constraint|A single constraint or a list of constraints to check. Each constraint is an absolute value, a list of absolute values, an object with a range of numbers as { min: 0, max: 9 }, a regular expression, or a callback function that receives the data and returns true or false.|
+|notify|Optional: a callback function that will be executed after validation with true or false.|
+|currentState|Optional: if set helps short-circuit the notify function, it will not be called if the validation state did not actually change.
 
 Validators do not validate other components, they validate a piece of data.
 That data may come from a prop or component state, most likely state.
@@ -77,7 +80,8 @@ Multiple Validators in a form next to input fields may look something like this 
     <Validator className="validation"
         value={ this.state.name }
         isRequired={ true }
-        notify={ this.setInvalid }
+        currentState={ this.state.nameIsValid }
+        notify={ this.setValidationState }
         renderOnEmpty={ true }>
         Required
     </Validator><br />
@@ -91,7 +95,8 @@ Multiple Validators in a form next to input fields may look something like this 
         isRequired={ true }
         renderOnEmpty={ true }
         constraint={ /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/ }
-        notify={ this.setInvalid }>
+        currentState={ this.state.passwordIsValid }
+        notify={ this.setValidationState }>
         Password is not valid
     </Validator><br />
 
@@ -102,34 +107,22 @@ Multiple Validators in a form next to input fields may look something like this 
 </form>
 ```
 
-The *notify* callback is executed synchronously while the validation is being performed, but validation is only performed when the Validator is rendered.
-For that reason, *setState* may not be used in the notify callback.
-Props are set for children when the parent is rendered, but before any children are rendered.
-Because the values are set, changing a variable using *notify* called from one Validator that is the source of a prop for subsequent component will not change the original value of the prop that component will receive.
+The *notify* callback is executed asynchronously, so it is safe to call *this.setState* from it.
+The caveat is that calling setState always renders, even if the state did not change. Calling setState when the validation does not change will cause an infinite loop, and that could also happen if two validators validating the same data. Two validators for the same data could happen if you want a validation message list above the form, and messages alongside to the input fields.
 
-If sequential children depend on the validation state, then they have to be re-rendered after the validators have run.
-An example of using this would be to diable a button because validation failed.
-This can be handled by making the button dependent on a state value, but remember that *setState* cannot be called from within
-the *notify* callback because it is called from *render.*
-The solution is to have *notify* set a class instance variable to indicate the state of validation. Then update the component state later in the cycle using *componentDidMount* and *componentDidUpdate*.
-Both events are necessary, the first happens after the initial creation and mount, and the second on every update.
-Do this with care, because *setState* is simple and does not check to see if state has changed.
-Calling *setState* within these two methods when the state has not changed will cause an infinite recursion.
-Always check that the state actually changed before calling *setState.*
-The state set in this method links back to the *Post* button in the previous example:
+Either check the new value returned to this function against the current state, or pass the current state as the *currentState* prop, or do both to to make sure.
 
-```javascript
-componentDidUpdate() {
+How the parent component using Validator chooses to handle invalid data, or change the data before it is pushed somewhere, is strictly up to the parent component.
 
-    if (this.valid !== this.state.valid) {
+### Helpers
 
-        this.setState({ valid: this.valid })
-    }
-}
-```
+These helper functions may be imported from the package:
 
-How the parent component using Validator chooses to handle invalid data, or change the data before it is
-pushed somewhere, is strictly up to the parent component.
+|Helper|Description|
+|---|---|
+|cardNumberValidator|This function uses the Luhn algorithm to verify that a cart number is a valid (but not necessarily real) card number, i.e. the checksum matches the digits. This function may be used as a constraint.|
+|cardNumberParser|This function returns an object with the card information broken down: { mii, iin_bin, account, checksum }.|
+|cardInfo|This asynchronous function reaches out to https://lookup.binlist.net and returns a JSON object with the card provider information.|
 
 ### Contributing
 

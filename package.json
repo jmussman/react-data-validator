@@ -1,6 +1,6 @@
 {
     "name": "react-data-validator",
-    "version": "1.1.0",
+    "version": "2.0.0",
     "description": "A React Component for validating any data, and works well alongside of input fields.",
     "license": "MIT",
     "homepage": "https://github.com/jmussman/react-data-validator",
@@ -21,10 +21,10 @@
         "type": "git",
         "url": "https://github.com/jmussman/react-data-validator.git"
     },
-    "main": "out/Validator.js",
-    "types": "out/Validator.d.ts",
+    "main": "dist/Validator.js",
+    "types": "dist/Validator.d.ts",
     "scripts": {
-        "build": "webpack"
+        "build": "rm -rf dist; webpack"
     },
     "peerDependencies": {
         "prop-types": "^15.6.2",

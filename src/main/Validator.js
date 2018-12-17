@@ -41,8 +41,17 @@ class Validator extends Component {
                 PropTypes.string,
                 PropTypes.array,
                 PropTypes.object,
-                PropTypes.func
+                PropTypes.func,
+                PropTypes.arrayOf( PropTypes.oneOfType( [
+                    PropTypes.bool,
+                    PropTypes.number,
+                    PropTypes.string,
+                    PropTypes.array,
+                    PropTypes.object,
+                    PropTypes.func
+                ]))
             ]).isRequired,
+            currentState: PropTypes.bool,
             isRequired: PropTypes.bool,
             notify: PropTypes.func,
             renderOnEmpty: PropTypes.bool,
@@ -61,12 +70,12 @@ class Validator extends Component {
 
         const valid = validate(this.props.isRequired, this.props.value, this.props.constraint)
 
-        if (!valid && this.props.notify) {
+        if ((typeof this.props.currentState == 'undefined' || valid != this.props.currentState) && this.props.notify) {
 
             // Push the notification into the event queue so that it runs after render,
             // allowing setState to be used in the callback.
 
-            setTimeout(this.props.notify, 0)
+            setTimeout(() => this.props.notify(valid), 0)
         }
         
         // Render failed validation message (the children). The validation message is tricky: the value may be required and invalid, but if

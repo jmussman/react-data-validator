@@ -7,9 +7,10 @@ import React, { Component, ReactNode } from 'react';
 export interface ValidatorProps {
 
     className?: string;
-    constraint: boolean | number | string | [] | object;
+    constraint: boolean | number | string | object | (boolean | number | string | object)[];    // "object" includes function objects.
+    currentState?: boolean;
     isRequired?: boolean;
-    notify?(): void;
+    notify?(valid: boolean): void;
     renderOnEmpty?: boolean;
     value: boolean | number | string | object;
 }

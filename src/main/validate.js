@@ -11,13 +11,9 @@ import validateWithCallback from './validateWithCallback'
 
 function validate(isRequired, value, constraint) {
 
-    // This method is a controller that decides how to perform validation based on the information given
-    // to the constraints prop. The default result is false, which is a best-practice for security,
-    // so if a constraint is not found the result will still be false.
+    let result = true;
 
-    let result = true
-
-    // Check the value and constraint.
+    // Check the value exists and that there are constraints.
 
     if (typeof value === 'undefined' || typeof constraint === 'undefined') {
 
@@ -31,7 +27,47 @@ function validate(isRequired, value, constraint) {
         result = validateIsRequired(value)
     }
 
+    if (result) {
+
+        if (Array.isArray(constraint)) {
+                
+            // Spin each of the constraints.
+
+            for (const c of constraint) {
+
+                result = validateAgainstConstraint(value, c)
+
+                if (result == false) {
+
+                    break
+                }
+            }
+
+        } else {
+
+            // Validate against a single constraint.
+
+            result = validateAgainstConstraint(value, constraint)
+        }
+    }
+
+    return result;
+}
+
+function validateAgainstConstraint(value, constraint) {
+
+    // This method is a controller that decides how to perform validation based on the information given
+    // to the constraints prop. The default result is false, which is a best-practice for security,
+    // so if a constraint is not found the result will still be false.
+
+    let result = true
+
     // We can continue only if the value and constraint are actually defined
+
+    if (typeof value === 'undefined' || typeof constraint === 'undefined') {
+
+        result = false;
+    }
 
     if (result) {
 
